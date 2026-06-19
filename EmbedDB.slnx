@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path=".justfile" />
+    <File Path="LICENSE" />
+    <File Path="restore.bat" />
+    <File Path="publish.bat" />
+  </Folder>
+  <Project Path="example/Example.csproj" />
+  <Project Path="src/EmbedDB.csproj" />
+</Solution>
