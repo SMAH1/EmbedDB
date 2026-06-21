@@ -2,8 +2,7 @@ namespace EmbedDB;
 
 public interface IEmbedDBCollection<T>
 {
-    IReadOnlyList<T> Snapshot { get; }
-    TResult Query<TResult>(Func<IReadOnlyList<T>, TResult> query);
+    IReadOnlyList<T> Query { get; }
 
     void Add(T item);
     void AddRange(IEnumerable<T> items);

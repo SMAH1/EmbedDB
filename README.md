@@ -52,7 +52,7 @@ internal partial class AppJsonContext : JsonSerializerContext { }
 Register your entities using the fluent API and initialize the database to load existing data from the disk.
 
 ```csharp
-using var db = new EmbeddedDatabase("my_data.db.gz");
+using var db = new EmbedDatabase("my_data.db.gz");
 
 db.Register(AppJsonContext.Default.User)
   .Register(AppJsonContext.Default.Product);
@@ -91,18 +91,15 @@ Queries are executed against an immutable, read-only snapshot of the current sta
 
 ```csharp
 // Simple count
-int totalUsers = users.Query(list => list.Count);
+int totalUsers = users.Query.Count();
 
 // Complex LINQ
-var expensiveItems = products.Query(list => 
-    list.Where(p => p.Price > 100)
-        .OrderByDescending(p => p.Price)
-        .Select(p => p.Title)
-        .ToList()
+var expensiveItems = products.Query
+    .Where(p => p.Price > 100)
+    .OrderByDescending(p => p.Price)
+    .Select(p => p.Title)
+    .ToList()
 );
-
-// Direct Snapshot Access (Read-Only)
-IReadOnlyList<User> currentSnapshot = users.Snapshot;
 ```
 
 ## 🏗️ Architecture & Design Decisions

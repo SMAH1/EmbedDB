@@ -18,12 +18,7 @@ internal class EmbedDBCollection<T> : IEmbedDBCollection<T>, IEmbedDBCollectionE
 
     public string Name { get; }
 
-    public IReadOnlyList<T> Snapshot => _currentList;
-
-    public TResult Query<TResult>(Func<IReadOnlyList<T>, TResult> query)
-    {
-        return _db.ExecuteRead(() => query(_currentList));
-    }
+    public IReadOnlyList<T> Query => _currentList;
 
     public void Add(T item)
     {

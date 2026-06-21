@@ -44,7 +44,7 @@ public class Program
         // ==========================================
         Console.WriteLine("--- Initial Data Insertion ---");
 
-        if (users.Snapshot.Count() == 0)
+        if (users.Query.Count() == 0)
         {
             users.Add(new User { Id = 1, Name = "Ali", Age = 25 });
             users.AddRange(new[] {
@@ -108,15 +108,16 @@ public class Program
         // ==========================================
         Console.WriteLine("\n--- Complex Queries ---");
 
-        var averageAge = users.Query(list => list.Average(u => u.Age));
+        var averageAge = users.Query.Average(u => u.Age);
         Console.WriteLine($"Average user age: {averageAge:F1}");
 
-        var totalInventoryValue = products.Query(list => list.Sum(p => p.Price * p.Stock));
+        var totalInventoryValue = products.Query.Sum(p => p.Price * p.Stock);
         Console.WriteLine($"Total inventory value: ${totalInventoryValue:F2}");
 
-        var expensiveItems = products.Query(list =>
-            list.Where(p => p.Price > 100).Select(p => p.Title).ToList()
-        );
+        var expensiveItems = products.Query
+            .Where(p => p.Price > 100)
+            .Select(p => p.Title)
+            .ToList();
         Console.WriteLine($"Expensive items: {string.Join(", ", expensiveItems)}");
 
         Console.WriteLine("\nDatabase operations completed successfully.");
@@ -127,15 +128,15 @@ public class Program
         Console.WriteLine("\n[Current Database State]");
 
         Console.WriteLine("Users:");
-        if (!users.Snapshot.Any()) Console.WriteLine("  (Empty)");
-        foreach (var u in users.Snapshot)
+        if (!users.Query.Any()) Console.WriteLine("  (Empty)");
+        foreach (var u in users.Query)
         {
             Console.WriteLine($"  - ID:{u.Id} | {u.Name} | Age: {u.Age}");
         }
 
         Console.WriteLine("Products:");
-        if (!products.Snapshot.Any()) Console.WriteLine("  (Empty)");
-        foreach (var p in products.Snapshot)
+        if (!products.Query.Any()) Console.WriteLine("  (Empty)");
+        foreach (var p in products.Query)
         {
             Console.WriteLine($"  - ID:{p.Id} | {p.Title,-10} | ${p.Price,-8} | Stock: {p.Stock}");
         }
