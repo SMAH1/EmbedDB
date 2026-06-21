@@ -113,6 +113,17 @@ The database uses a **Copy-On-Write (COW)** pattern. When a write operation occu
 Prevent file corruption during unexpected shutdowns.
 If a crash occurs during saving data, the main database file remains untouched and intact.
 
+## 🛠️ Installation
+
+### NuGet Package Manager
+```powershell
+Install-Package EmbedDB
+```
+
+### .NET CLI
+```bash
+dotnet add package EmbedDB
+```
 ## 🧭 Roadmap (TODO)
 
 We are continuously working to improve **EmbedDB**. Here are the planned features for upcoming releases:
