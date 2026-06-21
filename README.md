@@ -52,7 +52,7 @@ internal partial class AppJsonContext : JsonSerializerContext { }
 Register your entities using the fluent API and initialize the database to load existing data from the disk.
 
 ```csharp
-using var db = new EmbedDatabase("my_data.db.gz");
+using var db = new EmbedDatabase("my_data.db.gz"); // or empty string for in-memory only
 
 db.Register(AppJsonContext.Default.User)
   .Register(AppJsonContext.Default.Product);
@@ -117,9 +117,6 @@ If a crash occurs during saving data, the main database file remains untouched a
 
 We are continuously working to improve **EmbedDB**. Here are the planned features for upcoming releases:
 
-- **Pure In-Memory Mode (Ephemeral Storage):** 
-  An option to completely disable disk persistence. This will allow the database to act as a high-performance, ephemeral in-memory store (ideal for caching, session states, or unit testing) by bypassing all file I/O, GZip compression, and atomic save operations, resulting in near-zero write latency.
-  
 - **Strict Deep Immutability Enforcement:** 
   Currently, the *collections* are strictly read-only, but the *entities* inside the snapshot remain mutable reference types. Future versions will enforce deep immutability. This will be achieved by either requiring immutable C# `record` types, returning deep-cloned objects/proxies on read, or implementing structural sharing. This guarantees that data can **only** be modified through the explicit `Update` pipeline, completely eliminating accidental side-effects or unauthorized mutations from external code.
 

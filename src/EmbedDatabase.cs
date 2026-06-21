@@ -7,16 +7,31 @@ namespace EmbedDB;
 
 public class EmbedDatabase : IDisposable
 {
+    private readonly bool _inMemory;
     private readonly string _filePath;
     private readonly string _tempFilePath; // Temp file for atomic writes
     private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.NoRecursion);
     private readonly ConcurrentDictionary<string, IEmbedDBCollectionExtend> _collections = new();
     private bool _isInitialized = false;
 
+    /// <summary>
+    /// Creates a new instance of EmbedDatabase with the specified file path for storage.
+    /// </summary>
+    /// <param name="filePath">The file path where the database will be stored. Empty or null for in-memory only.</param>
     public EmbedDatabase(string filePath)
     {
-        _filePath = filePath;
-        _tempFilePath = _filePath + ".tmp";
+        if (string.IsNullOrEmpty(filePath))
+        {
+            _filePath = string.Empty;
+            _tempFilePath = string.Empty;
+            _inMemory = true;
+        }
+        else
+        {
+            _filePath = filePath;
+            _tempFilePath = _filePath + ".tmp";
+            _inMemory = false;
+        }
     }
 
     public EmbedDatabase Register<T>(JsonTypeInfo<T> typeInfo)
@@ -53,26 +68,13 @@ public class EmbedDatabase : IDisposable
         throw new KeyNotFoundException($"Entity '{name}' is not registered.");
     }
 
-    internal TResult ExecuteRead<TResult>(Func<TResult> func)
-    {
-        _lock.EnterReadLock();
-        try
-        {
-            return func();
-        }
-        finally
-        {
-            _lock.ExitReadLock();
-        }
-    }
-
     internal void ExecuteWrite(Action action)
     {
         _lock.EnterWriteLock();
         try
         {
             action();
-            Save();
+            Save(); // TODO : Save asynchronously or batch saves for performance in high-write scenarios.
         }
         finally
         {
@@ -82,6 +84,8 @@ public class EmbedDatabase : IDisposable
 
     private void Load()
     {
+        if (_inMemory) return;
+
         // 1. Cleanup leftover temp file from a previous crash
         if (File.Exists(_tempFilePath))
         {
@@ -122,6 +126,8 @@ public class EmbedDatabase : IDisposable
 
     private void Save()
     {
+        if (_inMemory) return;
+
         // 1. Write to temporary file
         using (var fs = new FileStream(_tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
         {
