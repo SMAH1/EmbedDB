@@ -7,13 +7,55 @@
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <IsAotCompatible>true</IsAotCompatible>
+    
     <NoWarn>$(NoWarn);1591</NoWarn>
     <LangVersion>preview</LangVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- NuGet Package Information -->
+    <PackageId>EmbedDB</PackageId>
+    <Title>EmbedDB</Title>
+    <Description>EmbedDB is a lightweight, high-performance, in-memory embedded document database.</Description>
+    <Authors>SMAH1</Authors>
+    <PackageProjectUrl>https://github.com/SMAH1/EmbedDB</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/SMAH1/EmbedDB</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>embedded-database;in-memory;high-performance;document-database;aot;</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>License MIT</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="" />
+    <None Include="../README.md" Pack="true" PackagePath="/README.md" />
   </ItemGroup>
+
+  <!-- Version from Git tag -->
+  <Target Name="SetVersionFromGitTag" BeforeTargets="GetAssemblyVersion;GenerateAssemblyInfo;GenerateNuspec;_GetPackageFiles">
+    <Exec Command="git describe --tags --match &quot;v*&quot; --abbrev=0" ConsoleToMSBuild="true" IgnoreExitCode="true" WorkingDirectory="$(MSBuildProjectDirectory)">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitTagRaw" />
+    </Exec>
+
+    <PropertyGroup>
+      <GitTagTrimmed>$([System.String]::Copy('$(_GitTagRaw)').Trim())</GitTagTrimmed>
+    </PropertyGroup>
+
+    <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" WorkingDirectory="$(MSBuildProjectDirectory)" IgnoreExitCode="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitId" />
+    </Exec>
+
+    <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(_GitTagRaw.Trim())', '^v[0-9]'))">
+      <_GitTagStripped>$(_GitTagRaw.Substring(1).Trim())</_GitTagStripped>
+      <GitCommitId>$(_GitCommitId.Trim())</GitCommitId>
+      <Version>$(_GitTagStripped)</Version>
+      <PackageVersion>$(Version)</PackageVersion>
+      <AssemblyVersion>$(Version)</AssemblyVersion>
+      <FileVersion>$(Version)</FileVersion>
+      <InformationalVersion>$(Version)+$(GitCommitId)</InformationalVersion>
+      <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    </PropertyGroup>
+    <Message Importance="high" Text="Version resolved: tag=$(_GitTagRaw.Trim()) commit=$(GitCommitId) → $(Version)+$(GitCommitId)" />
+  </Target>
 
 </Project>
